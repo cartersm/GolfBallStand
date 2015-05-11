@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">GolfBallStand</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="blank_field">---</string>
+
+    <string name="degrees_format">%1$.0fº</string>
+    <string name="xy_format">(%1$.0f,%2$.0f)</string>
+
+    <!-- Ball knocking positions -->
+    <string name="home_position">POSITION 13 90 0 -90 70</string>
+    <string name="ball_1">POSITION 23 130 -90 -165 75</string>
+    <string name="ball_1_swing">POSITION 54 130 -90 -165 75</string>
+    <string name="ball_2">POSITION 3 120 -90 -158 65</string>
+    <string name="ball_2_swing">POSITION 22 130 -90 -165 75</string>
+    <string name="ball_3">POSITION 0 130 -90 -165 75</string>
+    <string name="ball_3_swing">POSITION -25 130 -90 -165 75</string>
+    <string name="gripper_close">GRIPPER 5</string>
+
+
+    <string name="wheel_speed_format">WHEEL SPEED %1$d %2$d</string>
+
+    <string-array name="ball_colors_array">
+        <item>NONE</item>
+        <item>RED</item>
+        <item>GREEN</item>
+        <item>YELLOW</item>
+        <item>BLUE</item>
+        <item>BLACK</item>
+        <item>WHITE</item>
+    </string-array>
+
+</resources>
