@@ -148,43 +148,44 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="X"
-        android:id="@+id/X_textView"
-        android:layout_marginTop="30dp"
+        android:text="GPS XY"
+        android:id="@+id/GPS_XY_textView"
+        android:layout_marginTop="14dp"
         android:layout_below="@+id/Go_button"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Y"
-        android:id="@+id/Y_textView"
-        android:layout_alignTop="@+id/YValue_textView"
-        android:layout_toLeftOf="@+id/location2_spinner"
-        android:layout_toStartOf="@+id/location2_spinner" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="@string/blank_field"
-        android:id="@+id/XValue_textView"
-        android:layout_alignTop="@+id/X_textView"
-        android:layout_toRightOf="@+id/textView1"
-        android:layout_toEndOf="@+id/textView1" />
+        android:text="GPS Target"
+        android:id="@+id/GPS_target_textView"
+        android:layout_below="@+id/GPS_XY_textView"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="13dp"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="@string/blank_field"
-        android:id="@+id/YValue_textView"
-        android:layout_alignBaseline="@+id/GPSH_textView"
-        android:layout_alignBottom="@+id/GPSH_textView"
-        android:layout_alignLeft="@+id/Ball2_textView"
-        android:layout_alignStart="@+id/Ball2_textView" />
+        android:id="@+id/GPS_value_textView"
+        android:layout_above="@+id/GPS_target_textView"
+        android:layout_alignLeft="@+id/GPS_target_value_textView"
+        android:layout_alignStart="@+id/GPS_target_value_textView"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/blank_field"
+        android:id="@+id/GPS_target_value_textView"
+        android:layout_alignBaseline="@+id/GPS_target_textView"
+        android:layout_alignBottom="@+id/GPS_target_textView"
+        android:layout_alignLeft="@+id/SetOrigin_button"
+        android:layout_alignStart="@+id/SetOrigin_button"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -192,7 +193,7 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="GPS Heading"
         android:id="@+id/GPSH_textView"
-        android:layout_alignTop="@+id/XValue_textView"
+        android:layout_alignTop="@+id/GPS_value_textView"
         android:layout_toLeftOf="@+id/textView3"
         android:layout_toStartOf="@+id/textView3" />
 
@@ -243,10 +244,10 @@
         android:text="Set X Axis"
         android:onClick="handleSetXAxis"
         android:id="@+id/SetXAxis_button"
-        android:layout_marginTop="24dp"
-        android:layout_below="@+id/X_textView"
+        android:layout_marginTop="15dp"
+        android:layout_below="@+id/GPS_target_textView"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"/>
 
     <Button
         android:layout_width="wrap_content"
@@ -254,8 +255,10 @@
         android:text="Set Origin"
         android:onClick="handleSetOrigin"
         android:id="@+id/SetOrigin_button"
+        android:layout_alignBaseline="@+id/SetXAxis_button"
         android:layout_alignBottom="@+id/SetXAxis_button"
-        android:layout_centerHorizontal="true" />
+        android:layout_alignRight="@+id/Ball2_textView"
+        android:layout_alignEnd="@+id/Ball2_textView"/>
 
     <Button
         android:layout_width="wrap_content"
@@ -263,24 +266,32 @@
         android:text="Set Heading to 0"
         android:onClick="handleSetHeadingTo0"
         android:id="@+id/SetHeading0_button"
-        android:layout_marginTop="30dp"
-        android:layout_below="@+id/SH_textView"
-        android:layout_alignLeft="@+id/SH_textView"
-        android:layout_alignStart="@+id/SH_textView" />
+        android:layout_alignTop="@+id/SetOrigin_button"
+        android:layout_alignLeft="@+id/FO_textView"
+        android:layout_alignStart="@+id/FO_textView"/>
 
     <ToggleButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="New ToggleButton"
         android:id="@+id/teamToggleButton"
-        android:layout_below="@+id/SetHeading0_button"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="30dp"
         android:checked="true"
         android:elegantTextHeight="false"
         android:textOff="Blue Team"
         android:textOn="Red Team"
-        android:onClick="handleTeamToggle"/>
+        android:onClick="handleTeamToggle"
+        android:layout_above="@+id/SetHeading0_button"
+        android:layout_alignLeft="@+id/SetHeading0_button"
+        android:layout_alignStart="@+id/SetHeading0_button"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/blank_field"
+        android:id="@+id/SHeading_textView"
+        android:layout_alignTop="@+id/SH_textView"
+        android:layout_alignLeft="@+id/SetOrigin_button"
+        android:layout_alignStart="@+id/SetOrigin_button"/>
 
 </RelativeLayout>

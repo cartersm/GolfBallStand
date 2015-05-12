@@ -26,6 +26,7 @@ public class MainActivity extends RobotActivity
     private static final int LOWEST_DUTY_CYCLE = 50;
     private static final double LEFT_DUTY_CYCLE_FACTOR = 0.6;
     private static final double MIN_DIST = 5;
+    public static final int HOME = -1;
 
     private TextView mBall1TextView, mBall2TextView, mBall3TextView;
     private TextView[] mBalls;
@@ -39,8 +40,8 @@ public class MainActivity extends RobotActivity
     private FieldGps mFieldGps;
     private FieldOrientation mFieldOrientation;
     private TextView mSensorHeadingTextView;
-    private TextView mGpsXTextView;
-    private TextView mGpsYTextView;
+    private TextView mGpsTextView;
+    private TextView mGpsTargetTextView;
     private TextView mGpsHeadingTextView;
     private boolean mSetFieldOrientationWithGpsHeadings = false;
 
@@ -107,12 +108,12 @@ public class MainActivity extends RobotActivity
 
         //setting field and heading values
         mFieldGps = new FieldGps(this);
-        mSensorHeadingTextView = (TextView) findViewById(R.id.SH_textView);
+        mSensorHeadingTextView = (TextView) findViewById(R.id.SHeading_textView);
         mFieldOrientation = new FieldOrientation(this);
 
         //setting text values
-        mGpsXTextView = (TextView) findViewById(R.id.X_textView);
-        mGpsYTextView = (TextView) findViewById(R.id.Y_textView);
+        mGpsTextView = (TextView) findViewById(R.id.GPS_value_textView);
+        mGpsTargetTextView = (TextView) findViewById(R.id.GPS_target_value_textView);
         mGpsHeadingTextView = (TextView) findViewById(R.id.GPSH_textView);
 
         setState(State.READY_FOR_MISSION);
@@ -194,14 +195,6 @@ public class MainActivity extends RobotActivity
                     , Toast.LENGTH_SHORT).show();
 
             mHasWhiteBall = false;
-//            runBallKnockScript(mYB_location + 1);
-
-//            mCommandHandler.postDelayed(new Runnable() {
-//                @Override
-//                public void run() {
-//                    runBallKnockScript(mRG_location + 1);
-//                }
-//            }, 3 * DELAY_MS);
 
         } else if (textEquals(mBalls[0], "WHITE")
                 || textEquals(mBalls[1], "WHITE")
@@ -212,28 +205,16 @@ public class MainActivity extends RobotActivity
                     , Toast.LENGTH_SHORT).show();
 
             mHasWhiteBall = true;
-//            runBallKnockScript(mYB_location + 1);
-//
-//            mCommandHandler.postDelayed(new Runnable() {
-//                @Override
-//                public void run() {
-//                    runBallKnockScript(mBW_location + 1);
-//                }
-//            }, 3 * DELAY_MS);
-//
-//            mCommandHandler.postDelayed(new Runnable() {
-//                @Override
-//                public void run() {
-//                    runBallKnockScript(mRG_location + 1);
-//                }
-//            }, 6 * DELAY_MS);
         }
         mSeekingLocation = mYB_location;
+        setSeekingTarget();
     }
 
     private void setSeekingTarget() {
-        if (mSeekingLocation == -1) {
+        if (mSeekingLocation == HOME) {
             mSeekingTarget = mHomePoint;
+            mGpsTargetTextView.setText(getString(R.string.xy_format, (double) mSeekingTarget.x, (double) mSeekingTarget.y));
+            Toast.makeText(this, "Seeking Home", Toast.LENGTH_SHORT).show();
             return;
         }
         BallCorrector.BallColor color = BallCorrector.getColorForString(mColors[mSeekingLocation]);
@@ -257,6 +238,8 @@ public class MainActivity extends RobotActivity
             mSeekingTarget = mHomePoint;
             break;
         }
+        mGpsTargetTextView.setText(getString(R.string.xy_format, (double) mSeekingTarget.x, (double) mSeekingTarget.y));
+        Toast.makeText(this, String.format("Ball Color: %s, Target: %s", color, mSeekingTarget), Toast.LENGTH_SHORT).show();
     }
 
     public void handleTeamToggle(View view) {
@@ -311,7 +294,7 @@ public class MainActivity extends RobotActivity
         } else if (mSeekingLocation == mRG_location && mHasWhiteBall) {
             mSeekingLocation = mBW_location;
         } else if (mSeekingLocation == mBW_location || !mHasWhiteBall) {
-            mSeekingLocation = -1;
+            mSeekingLocation = HOME;
         }
     }
 
@@ -379,8 +362,7 @@ public class MainActivity extends RobotActivity
     /* ---------- FieldOrientation and FieldGPS callbacks ---------- */
     @Override
     public void onLocationChanged(double x, double y, double heading, Location location) {
-        mGpsXTextView.setText((int) x + "ft");
-        mGpsYTextView.setText((int) y + "ft");
+        mGpsTextView.setText(getString(R.string.xy_format, x, y));
         if (heading <= 180.0 && heading > -180.0) {
             mGpsHeadingTextView.setText(getString(R.string.degrees_format, heading));
             if (mSetFieldOrientationWithGpsHeadings) {
@@ -466,20 +448,23 @@ public class MainActivity extends RobotActivity
         case WAITING_FOR_PICKUP:
             if (getStateTimeMs() > 8000) {
                 // I did not get picked up.  Seek some more.
-                setState(State.SEEKING_HOME);
+                mSeekingLocation = HOME;
+                setSeekingTarget();
+                setState(State.SEEKING_TARGET);
             }
             break;
-        case SEEKING_HOME:
-            // DONE: Update wheel speed to turn towards the target.
-            seekTargetAt(mHomePoint);
-            if (getStateTimeMs() > 6000) {
-                // Done moving.  Stop moving to try for pickup.
-                setState(State.WAITING_FOR_PICKUP);
-            }
-            break;
+//        case SEEKING_HOME:
+//            seekTargetAt(mHomePoint);
+//            if (getStateTimeMs() > 6000) {
+//                // Done moving.  Stop moving to try for pickup.
+//                setState(State.WAITING_FOR_PICKUP);
+//            }
+//            break;
         case WAITING_FOR_GPS:
             if (getStateTimeMs() > 8000) {
-                setState(State.SEEKING_HOME);  // Give up on GPS.
+                mSeekingLocation = HOME;
+                setSeekingTarget();
+                setState(State.SEEKING_TARGET);  // Give up on GPS.
             }
             break;
         case SEEKING_TARGET:
@@ -489,8 +474,9 @@ public class MainActivity extends RobotActivity
                     setState(State.REMOVING_BALL);
                     runBallKnockScript();
                 } else {
-                    setState(State.SEEKING_HOME);
+                    setState(State.WAITING_FOR_PICKUP);
                 }
+                sendCommand(getString(R.string.wheel_speed_format, 0, 0));
             }
             break;
         case REMOVING_BALL:
