@@ -294,4 +294,65 @@
         android:layout_alignLeft="@+id/SetOrigin_button"
         android:layout_alignStart="@+id/SetOrigin_button"/>
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0, 0"
+        android:onClick="handleFakeGPS1"
+        android:id="@+id/GPS00_button"
+        android:layout_marginTop="95dp"
+        android:layout_below="@+id/SH_textView"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="180, 0"
+        android:onClick="handleFakeGPS2"
+        android:id="@+id/GPS1800_button"
+        android:layout_alignTop="@+id/GPS00_button"
+        android:layout_toRightOf="@+id/SetXAxis_button"
+        android:layout_toEndOf="@+id/SetXAxis_button" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="90, 50"
+        android:onClick="handleFakeGPS3"
+        android:id="@+id/GPS9050_button"
+        android:layout_alignTop="@+id/GPS1800_button"
+        android:layout_alignLeft="@+id/SHeading_textView"
+        android:layout_alignStart="@+id/SHeading_textView" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="90, -50"
+        android:onClick="handleFakeGPS4"
+        android:id="@+id/GPS90-50_button"
+        android:layout_alignTop="@+id/GPS9050_button"
+        android:layout_toRightOf="@+id/Ball2_textView"
+        android:layout_toEndOf="@+id/Ball2_textView" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="240, 50"
+        android:onClick="handleFakeGPS5"
+        android:id="@+id/GPS24050_button"
+        android:layout_alignTop="@+id/GPS90-50_button"
+        android:layout_alignLeft="@+id/GPSH_textView"
+        android:layout_alignStart="@+id/GPSH_textView" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="240, -50"
+        android:onClick="handleFakeGPS6"
+        android:id="@+id/GPS240-50_button"
+        android:layout_alignTop="@+id/GPS24050_button"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
 </RelativeLayout>
