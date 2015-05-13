@@ -23,8 +23,8 @@ import edu.rosehulman.me435.RobotActivity;
 public class MainActivity extends RobotActivity
         implements AdapterView.OnItemSelectedListener, FieldGpsListener, FieldOrientationListener {
     private static final int DELAY_MS = 2000;
-    private static final int LOWEST_DUTY_CYCLE = 50;
-    private static final double LEFT_DUTY_CYCLE_FACTOR = 0.6;
+    private static final int LOWEST_DUTY_CYCLE = 100;
+    private static final double LEFT_DUTY_CYCLE_FACTOR = 0.5;
     private static final double MIN_DIST = 5;
     public static final int HOME = -1;
 
@@ -114,7 +114,7 @@ public class MainActivity extends RobotActivity
         //setting text values
         mGpsTextView = (TextView) findViewById(R.id.GPS_value_textView);
         mGpsTargetTextView = (TextView) findViewById(R.id.GPS_target_value_textView);
-        mGpsHeadingTextView = (TextView) findViewById(R.id.GPSH_textView);
+        mGpsHeadingTextView = (TextView) findViewById(R.id.GPSHeading_textView);
 
         setState(State.READY_FOR_MISSION);
 
@@ -134,6 +134,8 @@ public class MainActivity extends RobotActivity
             mBluePoint = new Point(90, -50);
             mYellowPoint = new Point(90, 50);
         }
+
+        setTeamToRed(mIsRedTeam);
     }
 
     @Override
@@ -208,6 +210,7 @@ public class MainActivity extends RobotActivity
         }
         mSeekingLocation = mYB_location;
         setSeekingTarget();
+        setState(State.SEEKING_TARGET);
     }
 
     private void setSeekingTarget() {
@@ -247,6 +250,7 @@ public class MainActivity extends RobotActivity
     }
 
     private void runBallKnockScript() {
+        Toast.makeText(this, "removing ball", Toast.LENGTH_SHORT).show();
         sendCommand(getString(R.string.gripper_close));
         switch (mSeekingLocation) {
         case 0:
@@ -282,6 +286,7 @@ public class MainActivity extends RobotActivity
             public void run() {
                 sendCommand(getString(R.string.home_position));
                 mDoneRemovingBall = true;
+                Toast.makeText(MainActivity.this, "Done removing ball", Toast.LENGTH_SHORT).show();
                 setSeekingLocation();
                 setSeekingTarget();
             }
@@ -289,11 +294,11 @@ public class MainActivity extends RobotActivity
     }
 
     private void setSeekingLocation() {
-        if (mSeekingLocation == mYB_location) {
-            mSeekingLocation = mRG_location;
-        } else if (mSeekingLocation == mRG_location && mHasWhiteBall) {
+        if (mSeekingLocation == mYB_location && mHasWhiteBall) {
             mSeekingLocation = mBW_location;
-        } else if (mSeekingLocation == mBW_location || !mHasWhiteBall) {
+        } else if (mSeekingLocation == mYB_location || mSeekingLocation == mBW_location) {
+            mSeekingLocation = mRG_location;
+        } else {
             mSeekingLocation = HOME;
         }
     }
@@ -362,6 +367,9 @@ public class MainActivity extends RobotActivity
     /* ---------- FieldOrientation and FieldGPS callbacks ---------- */
     @Override
     public void onLocationChanged(double x, double y, double heading, Location location) {
+        mCurrentGpsX = x;
+        mCurrentGpsY = y;
+        mCurrentGpsHeading = heading;
         mGpsTextView.setText(getString(R.string.xy_format, x, y));
         if (heading <= 180.0 && heading > -180.0) {
             mGpsHeadingTextView.setText(getString(R.string.degrees_format, heading));
@@ -385,6 +393,8 @@ public class MainActivity extends RobotActivity
     public void handleSetOrigin(View view) {
         //Toast.makeText(this,"SetOrigin clicked",Toast.LENGTH_SHORT).show();
         mFieldGps.setCurrentLocationAsOrigin();
+        mCurrentGpsX = 0;
+        mCurrentGpsY = 0;
     }
 
     //
@@ -436,6 +446,7 @@ public class MainActivity extends RobotActivity
             break;
         }
         mState = newState;
+
     }
 
     public void loop() {
@@ -550,12 +561,36 @@ public class MainActivity extends RobotActivity
         double rightTurnAmount = NavUtils.getRightTurnHeadingDelta(mCurrentSensorHeading, targetHeading);
         if (leftTurnAmount < rightTurnAmount) {
             leftDutyCycle -= (int) (leftTurnAmount);
-            leftDutyCycle = Math.max(leftDutyCycle, LOWEST_DUTY_CYCLE);
             leftDutyCycle *= LEFT_DUTY_CYCLE_FACTOR; // Correction factor for T'Rex
+            leftDutyCycle = Math.max(leftDutyCycle, LOWEST_DUTY_CYCLE);
         } else {
             rightDutyCycle -= (int) (rightTurnAmount);
             rightDutyCycle = Math.max(rightDutyCycle, LOWEST_DUTY_CYCLE);
         }
-        sendCommand(getString(R.string.wheel_speed_format, leftDutyCycle, rightDutyCycle));
+        sendWheelSpeed(leftDutyCycle, rightDutyCycle);
+    }
+
+    public void handleFakeGPS1(View view) {
+        onLocationChanged(0, 0, FieldGps.NO_BEARING_AVAILABLE, null);
+    }
+
+    public void handleFakeGPS2(View view) {
+        onLocationChanged(180, 0, FieldGps.NO_BEARING_AVAILABLE, null);
+    }
+
+    public void handleFakeGPS3(View view) {
+        onLocationChanged(90, 50, FieldGps.NO_BEARING_AVAILABLE, null);
+    }
+
+    public void handleFakeGPS4(View view) {
+        onLocationChanged(90, -50, FieldGps.NO_BEARING_AVAILABLE, null);
+    }
+
+    public void handleFakeGPS5(View view) {
+        onLocationChanged(240, 50, FieldGps.NO_BEARING_AVAILABLE, null);
+    }
+
+    public void handleFakeGPS6(View view) {
+        onLocationChanged(240, -50, FieldGps.NO_BEARING_AVAILABLE, null);
     }
 }

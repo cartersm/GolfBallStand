@@ -330,7 +330,7 @@
         android:layout_height="wrap_content"
         android:text="90, -50"
         android:onClick="handleFakeGPS4"
-        android:id="@+id/GPS90-50_button"
+        android:id="@+id/GPS90Neg50_button"
         android:layout_alignTop="@+id/GPS9050_button"
         android:layout_toRightOf="@+id/Ball2_textView"
         android:layout_toEndOf="@+id/Ball2_textView" />
@@ -341,7 +341,7 @@
         android:text="240, 50"
         android:onClick="handleFakeGPS5"
         android:id="@+id/GPS24050_button"
-        android:layout_alignTop="@+id/GPS90-50_button"
+        android:layout_alignTop="@+id/GPS90Neg50_button"
         android:layout_alignLeft="@+id/GPSH_textView"
         android:layout_alignStart="@+id/GPSH_textView" />
 
@@ -350,7 +350,7 @@
         android:layout_height="wrap_content"
         android:text="240, -50"
         android:onClick="handleFakeGPS6"
-        android:id="@+id/GPS240-50_button"
+        android:id="@+id/GPS240Neg50_button"
         android:layout_alignTop="@+id/GPS24050_button"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
