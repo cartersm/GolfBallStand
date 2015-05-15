@@ -75,6 +75,10 @@ public class MainActivity extends RobotActivity
     private Point mBluePoint;
     private Point mYellowPoint;
 
+    //GPS improvements
+    private double mGuessX,mGuessY;
+    public static final int SPEED=3; // ft/s
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -370,6 +374,8 @@ public class MainActivity extends RobotActivity
     public void onLocationChanged(double x, double y, double heading, Location location) {
         mCurrentGpsX = x;
         mCurrentGpsY = y;
+        mGuessX=x;
+        mGuessY=y;
         mCurrentGpsHeading = heading;
         mGpsTextView.setText(getString(R.string.xy_format, x, y));
         if (heading <= 180.0 && heading > -180.0) {
@@ -450,6 +456,11 @@ public class MainActivity extends RobotActivity
     }
 
     public void loop() {
+
+        mGuessX += SPEED * (double)LOOP_INTERVAL_MS / 1000 * Math.cos(Math.toRadians(mCurrentSensorHeading));
+        mGuessY += SPEED * (double)LOOP_INTERVAL_MS / 1000 * Math.sin(Math.toRadians(mCurrentSensorHeading));
+        mGpsTextView.setText(getString(R.string.xy_format,mGuessX,mGuessY));
+
         // TODO:
 //        mStateTimeTextView.setText("" + getStateTimeMs() / 1000);
         // Note you have access to the most recent readings here too.
