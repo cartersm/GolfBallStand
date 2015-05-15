@@ -150,8 +150,10 @@ public class FieldGps implements LocationListener {
    * Callback used by the GPS API to provide a new GPS location.
    */
   public void onLocationChanged(Location location) {
-    mLastGpsLocation = location;
-    dispatchOnLocationChangedEvent(location);
+    if (location.hasAccuracy() && location.getAccuracy() * FieldGps.FEET_PER_METER < 35.0) {
+      mLastGpsLocation = location;
+      dispatchOnLocationChangedEvent(location);
+    }
   }
 
   /**

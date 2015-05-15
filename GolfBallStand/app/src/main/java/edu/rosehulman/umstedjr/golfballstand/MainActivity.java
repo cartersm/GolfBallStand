@@ -24,7 +24,7 @@ public class MainActivity extends RobotActivity
         implements AdapterView.OnItemSelectedListener, FieldGpsListener, FieldOrientationListener {
     private static final int DELAY_MS = 2000;
     private static final int LOWEST_DUTY_CYCLE = 100;
-    private static final double LEFT_DUTY_CYCLE_FACTOR = 0.5;
+    private static final double LEFT_DUTY_CYCLE_FACTOR = 0.6;
     private static final double MIN_DIST = 5;
     public static final int HOME = -1;
 
@@ -57,10 +57,7 @@ public class MainActivity extends RobotActivity
         INITIAL_RED_SCRIPT,
         INITIAL_BLUE_SCRIPT,
         WAITING_FOR_GPS,
-        DRIVING_HOME,
         WAITING_FOR_PICKUP,
-        CORRECTIVE_SCRIPT,
-        SEEKING_HOME,
         SEEKING_TARGET,
         REMOVING_BALL
     }
@@ -210,7 +207,11 @@ public class MainActivity extends RobotActivity
         }
         mSeekingLocation = mYB_location;
         setSeekingTarget();
-        setState(State.SEEKING_TARGET);
+        setState(State.WAITING_FOR_GPS);
+    }
+
+    public void handleStop(View view) {
+        setState(State.READY_FOR_MISSION);
     }
 
     private void setSeekingTarget() {
@@ -406,6 +407,7 @@ public class MainActivity extends RobotActivity
     //
     public void handleSetHeadingTo0(View view) {
         mFieldOrientation.setCurrentFieldHeading(0);
+        mSensorHeadingTextView.setText(getString(R.string.degrees_format, 0));
     }
 
     /* ---------- RobotActivity stuff ---------- */
@@ -428,6 +430,9 @@ public class MainActivity extends RobotActivity
         mStateStartTime = System.currentTimeMillis();
         switch (newState) {
         case READY_FOR_MISSION:
+            mSeekingLocation = -1;
+            mSeekingTarget = null;
+            mGpsTargetTextView.setText(getString(R.string.blank_field));
             break;
         case INITIAL_RED_SCRIPT:
             break;
@@ -435,18 +440,13 @@ public class MainActivity extends RobotActivity
             break;
         case WAITING_FOR_GPS:
             break;
-        case DRIVING_HOME:
-            useArcRadiusToGetHome();
-            break;
+//        case DRIVING_HOME:
+//            useArcRadiusToGetHome();
+//            break;
         case WAITING_FOR_PICKUP:
-            break;
-        case CORRECTIVE_SCRIPT:
-            break;
-        case SEEKING_HOME:
             break;
         }
         mState = newState;
-
     }
 
     public void loop() {
@@ -471,13 +471,6 @@ public class MainActivity extends RobotActivity
 //                setState(State.WAITING_FOR_PICKUP);
 //            }
 //            break;
-        case WAITING_FOR_GPS:
-            if (getStateTimeMs() > 8000) {
-                mSeekingLocation = HOME;
-                setSeekingTarget();
-                setState(State.SEEKING_TARGET);  // Give up on GPS.
-            }
-            break;
         case SEEKING_TARGET:
             seekTargetAt(mSeekingTarget);
             if (NavUtils.getDistance(mCurrentGpsX, mCurrentGpsY, mSeekingTarget.x, mSeekingTarget.y) <= MIN_DIST) {
@@ -487,7 +480,7 @@ public class MainActivity extends RobotActivity
                 } else {
                     setState(State.WAITING_FOR_PICKUP);
                 }
-                sendCommand(getString(R.string.wheel_speed_format, 0, 0));
+                sendWheelSpeed(0, 0);
             }
             break;
         case REMOVING_BALL:
@@ -495,6 +488,12 @@ public class MainActivity extends RobotActivity
                 setState(State.SEEKING_TARGET);
                 mDoneRemovingBall = false;
             }
+        case WAITING_FOR_GPS:
+            sendWheelSpeed((int) (255 * LEFT_DUTY_CYCLE_FACTOR), 255);
+            if (getStateTimeMs() > 10000) {
+                setState(State.SEEKING_TARGET);
+            }
+            break;
         default:
             // Other states don't need to do anything, but could.
             break;

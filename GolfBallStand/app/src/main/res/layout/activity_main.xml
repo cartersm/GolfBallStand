@@ -127,11 +127,12 @@
         android:onClick="handleGo"
         android:id="@+id/Go_button"
         android:layout_marginTop="40dp"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/location1_spinner"/>
+        android:layout_below="@+id/location1_spinner"
+        android:background="#ff058200"
+        android:layout_toLeftOf="@+id/textView2"
+        android:layout_toStartOf="@+id/textView2"/>
 
     <Button
         android:layout_width="wrap_content"
@@ -354,5 +355,18 @@
         android:layout_alignTop="@+id/GPS24050_button"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Stop"
+        android:id="@+id/stop_button"
+        android:layout_alignTop="@+id/Go_button"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:background="#ff823100"
+        android:layout_toRightOf="@+id/textView2"
+        android:layout_toEndOf="@+id/textView2"
+        android:onClick="handleStop"/>
 
 </RelativeLayout>
