@@ -1,372 +1,396 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin" tools:context=".MainActivity"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingBottom="@dimen/activity_vertical_margin"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingTop="@dimen/activity_vertical_margin"
+                tools:context=".MainActivity"
     >
 
     <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Clear"
-        android:onClick="handleClear"
         android:id="@+id/clear_button"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
-
-    <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Ball Test"
-        android:onClick="handleBallTest"
-        android:id="@+id/BallTest_button"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
-
-    <Spinner
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/location1_spinner"
-        android:layout_below="@+id/clear_button"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_marginTop="150dp"
-        android:layout_alignRight="@+id/clear_button"
-        android:layout_alignEnd="@+id/clear_button"
-        android:spinnerMode="dropdown"/>
+        android:layout_alignParentTop="true"
+        android:onClick="handleClear"
+        android:text="Clear"/>
 
-    <Spinner
+    <Button
+        android:id="@+id/BallTest_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:onClick="handleBallTest"
+        android:text="Ball Test"/>
+
+    <Spinner
+        android:id="@+id/location1_spinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/SetXAxis_button"
+        android:layout_alignRight="@+id/SetXAxis_button"
+        android:layout_below="@+id/Ball1_textView"
+        android:layout_marginTop="40dp"
+        android:spinnerMode="dropdown"
+        android:textAlignment="center"/>
+
+    <Spinner
         android:id="@+id/location2_spinner"
-        android:layout_alignTop="@+id/location1_spinner"
-        android:layout_alignRight="@+id/Calibrate_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignEnd="@+id/Calibrate_button"
         android:layout_alignLeft="@+id/Calibrate_button"
+        android:layout_alignRight="@+id/Calibrate_button"
         android:layout_alignStart="@+id/Calibrate_button"
-        android:spinnerMode="dropdown"/>
+        android:layout_alignTop="@+id/location1_spinner"
+        android:spinnerMode="dropdown"
+        android:textAlignment="center"
+        android:layout_alignBottom="@+id/location1_spinner"/>
 
     <Spinner
+        android:id="@+id/location3_spinner"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/location3_spinner"
-        android:layout_alignTop="@+id/location2_spinner"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
         android:layout_alignLeft="@+id/BallTest_button"
         android:layout_alignStart="@+id/BallTest_button"
-        android:spinnerMode="dropdown"/>
+        android:layout_alignTop="@+id/location2_spinner"
+        android:spinnerMode="dropdown"
+        android:textAlignment="center"
+        android:layout_alignBottom="@+id/location2_spinner"/>
+
+    <Spinner
+        android:id="@+id/wheel_speed_factor_spinner"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:spinnerMode="dropdown"
+        android:textAlignment="center"
+        android:dropDownWidth="match_parent"
+        android:layout_alignTop="@+id/wheel_speed_text_view"
+        android:layout_alignLeft="@+id/textView4"
+        android:layout_alignStart="@+id/textView4"
+        />
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Ball 1"
         android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
         android:layout_below="@+id/clear_button"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="30dp" />
+        android:layout_marginTop="30dp"
+        android:text="Ball 1"
+        android:textAppearance="?android:attr/textAppearanceLarge"/>
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Ball 2"
         android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignTop="@+id/textView1"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:text="Ball 2"
+        android:textAppearance="?android:attr/textAppearanceLarge"/>
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Ball 3"
         android:id="@+id/textView3"
-        android:layout_alignTop="@+id/textView2"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
-
-    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="@string/blank_field"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/textView2"
+        android:text="Ball 3"
+        android:textAppearance="?android:attr/textAppearanceLarge"/>
+
+    <TextView
         android:id="@+id/Ball1_textView"
-        android:layout_below="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_marginTop="30dp" />
+        android:layout_below="@+id/textView1"
+        android:layout_marginTop="30dp"
+        android:text="@string/blank_field"
+        android:textAppearance="?android:attr/textAppearanceLarge"/>
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="@string/blank_field"
         android:id="@+id/Ball2_textView"
-        android:layout_alignTop="@+id/Ball1_textView"
-        android:layout_centerHorizontal="true" />
-
-    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:layout_alignTop="@+id/Ball1_textView"
+        android:layout_centerHorizontal="true"
         android:text="@string/blank_field"
+        android:textAppearance="?android:attr/textAppearanceLarge"/>
+
+    <TextView
         android:id="@+id/Ball3_textView"
-        android:layout_alignTop="@+id/Ball2_textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignTop="@+id/Ball2_textView"
+        android:text="@string/blank_field"
+        android:textAppearance="?android:attr/textAppearanceLarge"/>
 
     <Button
+        android:id="@+id/Go_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Go"
-        android:onClick="handleGo"
-        android:id="@+id/Go_button"
-        android:layout_marginTop="40dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_below="@+id/location1_spinner"
-        android:background="#ff058200"
+        android:layout_marginTop="40dp"
         android:layout_toLeftOf="@+id/textView2"
-        android:layout_toStartOf="@+id/textView2"/>
+        android:layout_toStartOf="@+id/textView2"
+        android:background="#ff058200"
+        android:onClick="handleGo"
+        android:text="Go"
+        android:textColor="#ffffffff"/>
 
     <Button
+        android:id="@+id/Calibrate_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Calibrate"
-        android:onClick="handleCalibrate"
-        android:id="@+id/Calibrate_button"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:onClick="handleCalibrate"
+        android:text="Calibrate"/>
 
     <!-- FieldGps and FieldOrientation stuff -->
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="GPS XY"
         android:id="@+id/GPS_XY_textView"
-        android:layout_marginTop="14dp"
-        android:layout_below="@+id/Go_button"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"/>
-
-    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="GPS Target"
-        android:id="@+id/GPS_target_textView"
-        android:layout_below="@+id/GPS_XY_textView"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_marginTop="13dp"/>
+        android:layout_below="@+id/Go_button"
+        android:layout_marginTop="14dp"
+        android:text="GPS XY"
+        android:textAppearance="?android:attr/textAppearanceLarge"/>
 
     <TextView
+        android:id="@+id/GPS_target_textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="@string/blank_field"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/GPS_XY_textView"
+        android:layout_marginTop="13dp"
+        android:text="GPS Target"
+        android:textAppearance="?android:attr/textAppearanceLarge"/>
+
+    <TextView
         android:id="@+id/GPS_value_textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_above="@+id/GPS_target_textView"
         android:layout_alignLeft="@+id/GPS_target_value_textView"
-        android:layout_alignStart="@+id/GPS_target_value_textView"/>
+        android:layout_alignStart="@+id/GPS_target_value_textView"
+        android:text="@string/blank_field"
+        android:textAppearance="?android:attr/textAppearanceLarge"/>
 
     <TextView
+        android:id="@+id/GPS_target_value_textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="@string/blank_field"
-        android:id="@+id/GPS_target_value_textView"
         android:layout_alignBaseline="@+id/GPS_target_textView"
         android:layout_alignBottom="@+id/GPS_target_textView"
         android:layout_alignLeft="@+id/SetOrigin_button"
-        android:layout_alignStart="@+id/SetOrigin_button"/>
+        android:layout_alignStart="@+id/SetOrigin_button"
+        android:text="@string/blank_field"
+        android:textAppearance="?android:attr/textAppearanceLarge"/>
 
     <TextView
+        android:id="@+id/GPSH_textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="GPS Heading"
-        android:id="@+id/GPSH_textView"
         android:layout_alignTop="@+id/GPS_value_textView"
         android:layout_toLeftOf="@+id/textView3"
-        android:layout_toStartOf="@+id/textView3" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Sensor Heading"
-        android:id="@+id/SH_textView"
-        android:layout_marginTop="29dp"
-        android:layout_below="@+id/SetXAxis_button"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="@string/blank_field"
-        android:id="@+id/GPSHeading_textView"
-        android:layout_alignTop="@+id/GPSH_textView"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Field Orientation"
-        android:id="@+id/FO_textView"
-        android:layout_toLeftOf="@+id/textView3"
         android:layout_toStartOf="@+id/textView3"
-        android:layout_alignTop="@+id/SH_textView"/>
+        android:text="GPS Heading"
+        android:textAppearance="?android:attr/textAppearanceLarge"/>
 
     <TextView
+        android:id="@+id/SH_textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="@string/blank_field"
-        android:id="@+id/FieldOrientation_textView"
-        android:layout_alignTop="@+id/FO_textView"
-        android:layout_alignLeft="@+id/GPSHeading_textView"
-        android:layout_alignStart="@+id/GPSHeading_textView" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Set X Axis"
-        android:onClick="handleSetXAxis"
-        android:id="@+id/SetXAxis_button"
-        android:layout_marginTop="15dp"
-        android:layout_below="@+id/GPS_target_textView"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"/>
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/SetXAxis_button"
+        android:layout_marginTop="29dp"
+        android:text="Sensor Heading"
+        android:textAppearance="?android:attr/textAppearanceLarge"/>
 
-    <Button
+    <TextView
+        android:id="@+id/GPSHeading_textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Set Origin"
-        android:onClick="handleSetOrigin"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/GPSH_textView"
+        android:text="@string/blank_field"
+        android:textAppearance="?android:attr/textAppearanceLarge"/>
+
+    <Button
+        android:id="@+id/SetXAxis_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/GPS_target_textView"
+        android:layout_marginTop="15dp"
+        android:onClick="handleSetXAxis"
+        android:text="Set X Axis"/>
+
+    <Button
         android:id="@+id/SetOrigin_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignBaseline="@+id/SetXAxis_button"
         android:layout_alignBottom="@+id/SetXAxis_button"
+        android:layout_alignEnd="@+id/Ball2_textView"
         android:layout_alignRight="@+id/Ball2_textView"
-        android:layout_alignEnd="@+id/Ball2_textView"/>
+        android:onClick="handleSetOrigin"
+        android:text="Set Origin"/>
 
     <Button
+        android:id="@+id/SetHeading0_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Set Heading to 0"
-        android:onClick="handleSetHeadingTo0"
-        android:id="@+id/SetHeading0_button"
         android:layout_alignTop="@+id/SetOrigin_button"
-        android:layout_alignLeft="@+id/FO_textView"
-        android:layout_alignStart="@+id/FO_textView"/>
+        android:layout_toLeftOf="@+id/textView3"
+        android:onClick="handleSetHeadingTo0"
+        android:text="Set Heading to 0"/>
 
     <ToggleButton
+        android:id="@+id/teamToggleButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="New ToggleButton"
-        android:id="@+id/teamToggleButton"
-        android:checked="true"
-        android:elegantTextHeight="false"
-        android:textOff="Blue Team"
-        android:textOn="Red Team"
-        android:onClick="handleTeamToggle"
         android:layout_above="@+id/SetHeading0_button"
         android:layout_alignLeft="@+id/SetHeading0_button"
-        android:layout_alignStart="@+id/SetHeading0_button"/>
+        android:layout_alignStart="@+id/SetHeading0_button"
+        android:checked="true"
+        android:elegantTextHeight="false"
+        android:onClick="handleTeamToggle"
+        android:text="New ToggleButton"
+        android:textOff="Blue Team"
+        android:textOn="Red Team"/>
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="@string/blank_field"
         android:id="@+id/SHeading_textView"
-        android:layout_alignTop="@+id/SH_textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/SetOrigin_button"
-        android:layout_alignStart="@+id/SetOrigin_button"/>
+        android:layout_alignStart="@+id/SetOrigin_button"
+        android:layout_alignTop="@+id/SH_textView"
+        android:text="@string/blank_field"
+        android:textAppearance="?android:attr/textAppearanceLarge"/>
 
     <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="0, 0"
-        android:onClick="handleFakeGPS1"
-        android:id="@+id/GPS00_button"
-        android:layout_marginTop="95dp"
-        android:layout_below="@+id/SH_textView"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="180, 0"
-        android:onClick="handleFakeGPS2"
-        android:id="@+id/GPS1800_button"
-        android:layout_alignTop="@+id/GPS00_button"
-        android:layout_toRightOf="@+id/SetXAxis_button"
-        android:layout_toEndOf="@+id/SetXAxis_button" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="90, 50"
-        android:onClick="handleFakeGPS3"
-        android:id="@+id/GPS9050_button"
-        android:layout_alignTop="@+id/GPS1800_button"
-        android:layout_alignLeft="@+id/SHeading_textView"
-        android:layout_alignStart="@+id/SHeading_textView" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="90, -50"
-        android:onClick="handleFakeGPS4"
-        android:id="@+id/GPS90Neg50_button"
-        android:layout_alignTop="@+id/GPS9050_button"
-        android:layout_toRightOf="@+id/Ball2_textView"
-        android:layout_toEndOf="@+id/Ball2_textView" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="240, 50"
-        android:onClick="handleFakeGPS5"
-        android:id="@+id/GPS24050_button"
-        android:layout_alignTop="@+id/GPS90Neg50_button"
-        android:layout_alignLeft="@+id/GPSH_textView"
-        android:layout_alignStart="@+id/GPSH_textView" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="240, -50"
-        android:onClick="handleFakeGPS6"
-        android:id="@+id/GPS240Neg50_button"
-        android:layout_alignTop="@+id/GPS24050_button"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Stop"
         android:id="@+id/stop_button"
-        android:layout_alignTop="@+id/Go_button"
-        android:layout_alignParentRight="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
-        android:background="#ff823100"
-        android:layout_toRightOf="@+id/textView2"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/Go_button"
         android:layout_toEndOf="@+id/textView2"
-        android:onClick="handleStop"/>
+        android:layout_toRightOf="@+id/textView2"
+        android:background="#ff823100"
+        android:onClick="handleStop"
+        android:text="Stop"
+        android:textColor="#ffffffff"/>
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/SH_textView"
+        android:layout_marginTop="34dp"
+        android:text="Wheel Speeds"
+        android:textAppearance="?android:attr/textAppearanceLarge"/>
+
+    <TextView
+        android:id="@+id/wheel_speed_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/textView"
+        android:layout_alignLeft="@+id/SHeading_textView"
+        android:layout_alignStart="@+id/SHeading_textView"
+        android:text="@string/blank_field"
+        android:textAppearance="?android:attr/textAppearanceLarge"/>
+
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Left Duty Cycle Percent"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:layout_alignTop="@+id/SHeading_textView"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"/>
+
+    <LinearLayout
+        android:id="@+id/fake_gps_button_bar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentEnd="false"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/textView"
+        android:baselineAligned="false"
+        android:orientation="horizontal"
+        android:layout_marginTop="50dp">
+
+        <Button
+            android:id="@+id/GPS00_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="handleFakeGPS1"
+            android:text="0, 0"
+            />
+
+        <Button
+            android:id="@+id/GPS1800_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="handleFakeGPS2"
+            android:text="180, 0"/>
+
+        <Button
+            android:id="@+id/GPS9050_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="handleFakeGPS3"
+            android:text="90, 50"/>
+
+        <Button
+            android:id="@+id/GPS90Neg50_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="handleFakeGPS4"
+            android:text="90, -50"/>
+
+        <Button
+            android:id="@+id/GPS24050_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="handleFakeGPS5"
+            android:text="240, 50"/>
+
+        <Button
+            android:id="@+id/GPS240Neg50_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="handleFakeGPS6"
+            android:text="240, -50"/>
+    </LinearLayout>
 
 </RelativeLayout>

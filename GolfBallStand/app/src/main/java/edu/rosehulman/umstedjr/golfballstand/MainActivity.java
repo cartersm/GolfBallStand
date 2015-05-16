@@ -24,32 +24,32 @@ public class MainActivity extends RobotActivity
         implements AdapterView.OnItemSelectedListener, FieldGpsListener, FieldOrientationListener {
     private static final int DELAY_MS = 2000;
     private static final int LOWEST_DUTY_CYCLE = 100;
-    private static final double LEFT_DUTY_CYCLE_FACTOR = 0.6;
-    private static final double MIN_DIST = 5;
+    private static final double MIN_DIST = 5.0 * Math.sqrt(2);
     public static final int HOME = -1;
+    public static final int SPEED = 3; // ft/s
 
+    private double leftDutyCycleFactor = 0.6;
     private TextView mBall1TextView, mBall2TextView, mBall3TextView;
     private TextView[] mBalls;
     private int mYB_location;
     private int mRG_location;
     private int mBW_location;
     private String[] mColors;
-    private Handler mCommandHandler = new Handler();
 
-    // Field Orientation/FieldGps variables
+    private Handler mCommandHandler = new Handler();
     private FieldGps mFieldGps;
     private FieldOrientation mFieldOrientation;
     private TextView mSensorHeadingTextView;
     private TextView mGpsTextView;
     private TextView mGpsTargetTextView;
     private TextView mGpsHeadingTextView;
-    private boolean mSetFieldOrientationWithGpsHeadings = false;
+    private TextView mWheelSpeedTextView;
 
-    // State Machine variables
     private long mStateStartTime;
     private State mState;
     private boolean mDoneRemovingBall;
     private boolean mHasWhiteBall;
+
     private int mSeekingLocation;
 
     private enum State {
@@ -57,6 +57,7 @@ public class MainActivity extends RobotActivity
         INITIAL_RED_SCRIPT,
         INITIAL_BLUE_SCRIPT,
         WAITING_FOR_GPS,
+        INITIAL_WAITING_FOR_GPS,
         WAITING_FOR_PICKUP,
         SEEKING_TARGET,
         REMOVING_BALL
@@ -64,20 +65,15 @@ public class MainActivity extends RobotActivity
 
     private Point mSeekingTarget;
 
-    // ball locations
     private boolean mIsRedTeam = true;
-
-    private Point mRobotStartPoint;
     private Point mHomePoint;
     private Point mWhitePoint;
     private Point mGreenPoint;
     private Point mRedPoint;
     private Point mBluePoint;
-    private Point mYellowPoint;
 
-    //GPS improvements
-    private double mGuessX,mGuessY;
-    public static final int SPEED=3; // ft/s
+    private Point mYellowPoint;
+    private double mGuessX, mGuessY;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,25 +83,11 @@ public class MainActivity extends RobotActivity
         mBall1TextView = (TextView) findViewById(R.id.Ball1_textView);
         mBall2TextView = (TextView) findViewById(R.id.Ball2_textView);
         mBall3TextView = (TextView) findViewById(R.id.Ball3_textView);
+        mWheelSpeedTextView = (TextView) findViewById(R.id.wheel_speed_text_view);
         mBalls = new TextView[]{mBall1TextView, mBall2TextView, mBall3TextView};
         mColors = new String[3];
 
-        Spinner SpinnerLoc1 = (Spinner) findViewById(R.id.location1_spinner);
-        Spinner SpinnerLoc2 = (Spinner) findViewById(R.id.location2_spinner);
-        Spinner SpinnerLoc3 = (Spinner) findViewById(R.id.location3_spinner);
-
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.ball_colors_array, android.R.layout.simple_spinner_item);
-
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-        SpinnerLoc1.setAdapter(adapter);
-        SpinnerLoc2.setAdapter(adapter);
-        SpinnerLoc3.setAdapter(adapter);
-
-        SpinnerLoc1.setOnItemSelectedListener(this);
-        SpinnerLoc2.setOnItemSelectedListener(this);
-        SpinnerLoc3.setOnItemSelectedListener(this);
+        setUpSpinners();
 
         //setting field and heading values
         mFieldGps = new FieldGps(this);
@@ -119,8 +101,42 @@ public class MainActivity extends RobotActivity
 
         setState(State.READY_FOR_MISSION);
 
+        setUpTeamAndLocations();
+
+
+    }
+
+    private void setUpSpinners() {
+        Spinner loc1Spinner = (Spinner) findViewById(R.id.location1_spinner);
+        Spinner loc2Spinner = (Spinner) findViewById(R.id.location2_spinner);
+        Spinner loc3Spinner = (Spinner) findViewById(R.id.location3_spinner);
+
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.ball_colors_array, android.R.layout.simple_spinner_item);
+
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        loc1Spinner.setAdapter(adapter);
+        loc2Spinner.setAdapter(adapter);
+        loc3Spinner.setAdapter(adapter);
+
+        loc1Spinner.setOnItemSelectedListener(this);
+        loc2Spinner.setOnItemSelectedListener(this);
+        loc3Spinner.setOnItemSelectedListener(this);
+
+        Spinner leftWheelSpinner = (Spinner) findViewById(R.id.wheel_speed_factor_spinner);
+        ArrayAdapter<CharSequence> adapter2 = ArrayAdapter.createFromResource(this,
+                R.array.wheel_speed_factors_array, android.R.layout.simple_spinner_item);
+
+        adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        leftWheelSpinner.setAdapter(adapter2);
+        leftWheelSpinner.setOnItemSelectedListener(this);
+        leftWheelSpinner.setSelection(4);
+    }
+
+    private void setUpTeamAndLocations() {
         // Set locations based on team
-        mRobotStartPoint = new Point(15, 0);
         mHomePoint = new Point(0, 0);
         mWhitePoint = new Point(180, 0);
 
@@ -167,56 +183,88 @@ public class MainActivity extends RobotActivity
             mBall1TextView.setText(ballColors[0]);
             mBall2TextView.setText(ballColors[1]);
             mBall3TextView.setText(ballColors[2]);
-            setColors();
+            setColorLocations();
 
         }
     }
 
-    public void handleClear(View view) {
-        mBall1TextView.setText(getString(R.string.blank_field));
-        mBall2TextView.setText(getString(R.string.blank_field));
-        mBall3TextView.setText(getString(R.string.blank_field));
-    }
+    /* ---------- RobotActivity stuff ---------- */
 
-    public void handleBallTest(View view) {
-        sendCommand("CUSTOM Perform Ball Test");
-    }
-
-    public void handleCalibrate(View view) {
-        sendCommand("CUSTOM Calibrate");
-    }
-
-    public void handleGo(View view) {
-        setColors();
-        // TODO: robot movement
-        if (textEquals(mBalls[0], "BLACK")
-                || textEquals(mBalls[1], "BLACK")
-                || textEquals(mBalls[2], "BLACK")) {
-            Toast.makeText(this, "Remove location " + Integer.toString(mYB_location + 1) + " (" + mColors[mYB_location] +
-                    "), then " + Integer.toString(mRG_location + 1) + " (" + mColors[mRG_location] +
-                    ").  Location " + Integer.toString(mBW_location + 1) + " (" + mColors[mBW_location] + ")."
-                    , Toast.LENGTH_SHORT).show();
-
-            mHasWhiteBall = false;
-
-        } else if (textEquals(mBalls[0], "WHITE")
-                || textEquals(mBalls[1], "WHITE")
-                || textEquals(mBalls[2], "WHITE")) {
-            Toast.makeText(this, "Remove location " + Integer.toString(mYB_location + 1) + " (" + mColors[mYB_location] +
-                    "), then " + Integer.toString(mBW_location + 1) + " (" + mColors[mBW_location] +
-                    "), then " + Integer.toString(mRG_location + 1) + " (" + mColors[mRG_location] + ")."
-                    , Toast.LENGTH_SHORT).show();
-
-            mHasWhiteBall = true;
+    private void setState(State newState) {
+        mStateStartTime = System.currentTimeMillis();
+        switch (newState) {
+        case READY_FOR_MISSION:
+            mMovingForward = false;
+            mSeekingLocation = -1;
+            mSeekingTarget = null;
+            mGpsTargetTextView.setText(getString(R.string.blank_field));
+            sendWheelSpeed(0, 0);
+            break;
+        // fall-through to moving
+        case INITIAL_WAITING_FOR_GPS:
+        case WAITING_FOR_GPS:
+        case SEEKING_TARGET:
+            mMovingForward = true;
+            break;
+        // fall-through to not moving
+        case WAITING_FOR_PICKUP:
+        case REMOVING_BALL:
+            mMovingForward = false;
+            break;
         }
-        mSeekingLocation = mYB_location;
-        setSeekingTarget();
-        setState(State.WAITING_FOR_GPS);
+        mState = newState;
     }
 
-    public void handleStop(View view) {
-        setState(State.READY_FOR_MISSION);
+    public void loop() {
+        super.loop();
+        switch (mState) {
+        case WAITING_FOR_PICKUP:
+            if (getStateTimeMs() > 8000) {
+                mSeekingLocation = HOME;
+                setSeekingTarget();
+                setState(State.SEEKING_TARGET);
+            }
+            break;
+        case SEEKING_TARGET:
+            seekTargetAt(mSeekingTarget);
+            if (NavUtils.getDistance(mCurrentGpsX, mCurrentGpsY, mSeekingTarget.x, mSeekingTarget.y) <= MIN_DIST) {
+                if (mSeekingTarget != mHomePoint) {
+                    setState(State.REMOVING_BALL);
+                    runBallKnockScript();
+                } else {
+                    setState(State.WAITING_FOR_PICKUP);
+                }
+                sendWheelSpeed(0, 0);
+            }
+            break;
+        case REMOVING_BALL:
+            if (mDoneRemovingBall) {
+                setState(State.WAITING_FOR_GPS);
+                mDoneRemovingBall = false;
+            }
+            break;
+        case WAITING_FOR_GPS:
+            sendWheelSpeed((int) (255 * leftDutyCycleFactor), 255);
+            if (getStateTimeMs() > 8000) {
+                setState(State.SEEKING_TARGET);
+            }
+            break;
+        case INITIAL_WAITING_FOR_GPS:
+            sendWheelSpeed((int) (255 * leftDutyCycleFactor), 255);
+            if (getStateTimeMs() > 20000) {
+                setState(State.SEEKING_TARGET);
+            }
+            break;
+        default:
+            break;
+        }
     }
+
+    private long getStateTimeMs() {
+        return System.currentTimeMillis() - mStateStartTime;
+    }
+
+    /* ---------- Target Seeking ---------- */
 
     private void setSeekingTarget() {
         if (mSeekingLocation == HOME) {
@@ -250,9 +298,35 @@ public class MainActivity extends RobotActivity
         Toast.makeText(this, String.format("Ball Color: %s, Target: %s", color, mSeekingTarget), Toast.LENGTH_SHORT).show();
     }
 
-    public void handleTeamToggle(View view) {
-        mIsRedTeam = ((ToggleButton) view).isChecked();
+    private void setSeekingLocation() {
+        if (mSeekingLocation == mYB_location && mHasWhiteBall) {
+            mSeekingLocation = mBW_location;
+        } else if (mSeekingLocation == mYB_location || mSeekingLocation == mBW_location) {
+            mSeekingLocation = mRG_location;
+        } else {
+            mSeekingLocation = HOME;
+        }
     }
+
+    private void seekTargetAt(Point p) {
+        double leftDutyCycle = 255 * leftDutyCycleFactor; // TODO: change me to a Picker
+        double rightDutyCycle = 255;
+        double targetHeading = NavUtils.getTargetHeading(mCurrentGpsX, mCurrentGpsY, p.x, p.y);
+        double leftTurnAmount = NavUtils.getLeftTurnHeadingDelta(mCurrentGpsHeading, targetHeading);
+        double rightTurnAmount = NavUtils.getRightTurnHeadingDelta(mCurrentGpsHeading, targetHeading);
+        if (leftTurnAmount < rightTurnAmount) {
+            leftDutyCycle -= (int) (leftTurnAmount);
+            leftDutyCycle = Math.max(leftDutyCycle, LOWEST_DUTY_CYCLE);
+            leftDutyCycle *= leftDutyCycleFactor; // Correction factor for T'Rex
+        } else {
+            rightDutyCycle -= (int) (rightTurnAmount);
+            rightDutyCycle = Math.max(rightDutyCycle, LOWEST_DUTY_CYCLE);
+        }
+        sendWheelSpeed((int) leftDutyCycle, (int) rightDutyCycle);
+        mWheelSpeedTextView.setText(getString(R.string.xy_format, leftDutyCycle, rightDutyCycle));
+    }
+
+    /* ---------- Ball Stuff ---------- */
 
     private void runBallKnockScript() {
         Toast.makeText(this, "removing ball", Toast.LENGTH_SHORT).show();
@@ -298,17 +372,7 @@ public class MainActivity extends RobotActivity
         }, 2 * DELAY_MS);
     }
 
-    private void setSeekingLocation() {
-        if (mSeekingLocation == mYB_location && mHasWhiteBall) {
-            mSeekingLocation = mBW_location;
-        } else if (mSeekingLocation == mYB_location || mSeekingLocation == mBW_location) {
-            mSeekingLocation = mRG_location;
-        } else {
-            mSeekingLocation = HOME;
-        }
-    }
-
-    private void setColors() {
+    private void setColorLocations() {
         for (int i = 0; i < 3; i++) {
             if (textEquals(mBalls[i], "YELLOW") || textEquals(mBalls[i], "BLUE")) {
                 mYB_location = i;
@@ -323,14 +387,8 @@ public class MainActivity extends RobotActivity
         }
     }
 
-    private boolean textEquals(TextView view, String text) {
-        return view.getText().toString().equalsIgnoreCase(text);
-    }
-
     private void fixColors(String[] ballColorStrings) {
-        // TODO: tweak me
         BallCorrector.BallColor[] ballColors = BallCorrector.convertToBallColors(ballColorStrings);
-
 
         // fix "NONE" returns, if possible.
         BallCorrector.checkNoneToRG(ballColors);
@@ -342,7 +400,45 @@ public class MainActivity extends RobotActivity
         BallCorrector.checkRG(ballColors);
         BallCorrector.checkYB(ballColors);
 
-        // TODO: fix duplicate colors
+    }
+
+    private boolean textEquals(TextView view, String text) {
+        return view.getText().toString().equalsIgnoreCase(text);
+    }
+
+    /* ---------- FieldOrientation and FieldGPS callbacks ---------- */
+
+    @Override
+    public void onLocationChanged(double x, double y, double heading, Location location) {
+        if ((x != 0 && y != 0) // not setting origin
+                && (Math.abs(mCurrentGpsX - x) > 100) || (Math.abs(mCurrentGpsY - y) > 100)) {
+            return;
+        }
+        mCurrentGpsX = x;
+        mCurrentGpsY = y;
+        mGuessX = x;
+        mGuessY = y;
+        mCurrentGpsHeading = heading;
+        mGpsTextView.setText(getString(R.string.xy_format, x, y));
+        if (heading <= 180.0 && heading > -180.0) {
+            mGpsHeadingTextView.setText(getString(R.string.degrees_format, heading));
+            boolean mSetFieldOrientationWithGpsHeadings = true;
+            if (mSetFieldOrientationWithGpsHeadings) {
+                mFieldOrientation.setCurrentFieldHeading(heading);
+            }
+        } else {
+            mGpsHeadingTextView.setText(getString(R.string.blank_field));
+        }
+    }
+
+    @Override
+    public void onSensorChanged(double fieldHeading, float[] orientationValues) {
+        mSensorHeadingTextView.setText(getString(R.string.degrees_format, fieldHeading));
+        mCurrentSensorHeading = fieldHeading;
+        // Note:
+        //  Azimuth is orientationValues[0]
+        //    Pitch is orientationValues[1]
+        //     Roll is orientationValues[2]
     }
 
     /* ---------- Spinner Callbacks ---------- */
@@ -361,6 +457,11 @@ public class MainActivity extends RobotActivity
         case R.id.location3_spinner:
             mBall3TextView.setText(color);
             break;
+        case R.id.wheel_speed_factor_spinner:
+            // set duty cycle percent as decimal
+            leftDutyCycleFactor = Double.parseDouble(parent.getItemAtPosition(position).toString()) / 100.0;
+
+
         }
     }
 
@@ -369,32 +470,51 @@ public class MainActivity extends RobotActivity
         parent.setSelection(parent.getFirstVisiblePosition());
     }
 
-    /* ---------- FieldOrientation and FieldGPS callbacks ---------- */
-    @Override
-    public void onLocationChanged(double x, double y, double heading, Location location) {
-        mCurrentGpsX = x;
-        mCurrentGpsY = y;
-        mGuessX=x;
-        mGuessY=y;
-        mCurrentGpsHeading = heading;
-        mGpsTextView.setText(getString(R.string.xy_format, x, y));
-        if (heading <= 180.0 && heading > -180.0) {
-            mGpsHeadingTextView.setText(getString(R.string.degrees_format, heading));
-            if (mSetFieldOrientationWithGpsHeadings) {
-                mFieldOrientation.setCurrentFieldHeading(heading);
-            }
-        } else {
-            mGpsHeadingTextView.setText(getString(R.string.blank_field));
-        }
+    /* ---------- Button Callbacks ---------- */
+
+    public void handleClear(View view) {
+        mBall1TextView.setText(getString(R.string.blank_field));
+        mBall2TextView.setText(getString(R.string.blank_field));
+        mBall3TextView.setText(getString(R.string.blank_field));
     }
 
-    @Override
-    public void onSensorChanged(double fieldHeading, float[] orientationValues) {
-        mSensorHeadingTextView.setText(getString(R.string.degrees_format, fieldHeading));
-        // Note:
-        //  Azimuth is orientationValues[0]
-        //    Pitch is orientationValues[1]
-        //     Roll is orientationValues[2]
+    public void handleBallTest(View view) {
+        sendCommand("CUSTOM Perform Ball Test");
+    }
+
+    public void handleCalibrate(View view) {
+        sendCommand("CUSTOM Calibrate");
+    }
+
+    public void handleGo(View view) {
+        setColorLocations();
+        if (textEquals(mBalls[0], "BLACK")
+                || textEquals(mBalls[1], "BLACK")
+                || textEquals(mBalls[2], "BLACK")) {
+            Toast.makeText(this, "Remove location " + Integer.toString(mYB_location + 1) + " (" + mColors[mYB_location] +
+                    "), then " + Integer.toString(mRG_location + 1) + " (" + mColors[mRG_location] +
+                    ").  Location " + Integer.toString(mBW_location + 1) + " (" + mColors[mBW_location] + ")."
+                    , Toast.LENGTH_SHORT).show();
+
+            mHasWhiteBall = false;
+
+        } else if (textEquals(mBalls[0], "WHITE")
+                || textEquals(mBalls[1], "WHITE")
+                || textEquals(mBalls[2], "WHITE")) {
+            Toast.makeText(this, "Remove location " + Integer.toString(mYB_location + 1) + " (" + mColors[mYB_location] +
+                    "), then " + Integer.toString(mBW_location + 1) + " (" + mColors[mBW_location] +
+                    "), then " + Integer.toString(mRG_location + 1) + " (" + mColors[mRG_location] + ")."
+                    , Toast.LENGTH_SHORT).show();
+
+            mHasWhiteBall = true;
+        }
+        mSeekingLocation = mYB_location;
+        setSeekingTarget();
+        setState(State.INITIAL_WAITING_FOR_GPS);
+    }
+
+    public void handleStop(View view) {
+        setState(State.READY_FOR_MISSION);
     }
 
     public void handleSetOrigin(View view) {
@@ -404,180 +524,18 @@ public class MainActivity extends RobotActivity
         mCurrentGpsY = 0;
     }
 
-    //
     public void handleSetXAxis(View view) {
         //Toast.makeText(this,"Set X Axis clicked",Toast.LENGTH_SHORT).show();
         mFieldGps.setCurrentLocationAsLocationOnXAxis();
     }
 
-    //
     public void handleSetHeadingTo0(View view) {
         mFieldOrientation.setCurrentFieldHeading(0);
-        mSensorHeadingTextView.setText(getString(R.string.degrees_format, 0));
+        mSensorHeadingTextView.setText(getString(R.string.degrees_format, 0.0));
     }
 
-    /* ---------- RobotActivity stuff ---------- */
-    private void useArcRadiusToGetHome() {
-        // TODO
-        //   Use the x, y, and heading to determine arc radius info
-        //   Use arc radius to set wheel speed and drive time
-        Toast.makeText(this, "Driving arc home", Toast.LENGTH_SHORT).show();
-        mCommandHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                setState(State.WAITING_FOR_PICKUP);
-            }
-        }, 6000);
-
-    }
-
-    private void setState(State newState) {
-        // TODO:
-        mStateStartTime = System.currentTimeMillis();
-        switch (newState) {
-        case READY_FOR_MISSION:
-            mSeekingLocation = -1;
-            mSeekingTarget = null;
-            mGpsTargetTextView.setText(getString(R.string.blank_field));
-            break;
-        case INITIAL_RED_SCRIPT:
-            break;
-        case INITIAL_BLUE_SCRIPT:
-            break;
-        case WAITING_FOR_GPS:
-            break;
-//        case DRIVING_HOME:
-//            useArcRadiusToGetHome();
-//            break;
-        case WAITING_FOR_PICKUP:
-            break;
-        }
-        mState = newState;
-    }
-
-    public void loop() {
-
-        mGuessX += SPEED * (double)LOOP_INTERVAL_MS / 1000 * Math.cos(Math.toRadians(mCurrentSensorHeading));
-        mGuessY += SPEED * (double)LOOP_INTERVAL_MS / 1000 * Math.sin(Math.toRadians(mCurrentSensorHeading));
-        mGpsTextView.setText(getString(R.string.xy_format,mGuessX,mGuessY));
-
-        // TODO:
-//        mStateTimeTextView.setText("" + getStateTimeMs() / 1000);
-        // Note you have access to the most recent readings here too.
-        //Log.d(TAG, "GPS (" + mCurrentGpsX + "," + mCurrentGpsY + ") " +
-        //   mCurrentGpsHeading + "   Sensor heading " + mCurrentSensorHeading);
-        switch (mState) {
-        case WAITING_FOR_PICKUP:
-            if (getStateTimeMs() > 8000) {
-                // I did not get picked up.  Seek some more.
-                mSeekingLocation = HOME;
-                setSeekingTarget();
-                setState(State.SEEKING_TARGET);
-            }
-            break;
-//        case SEEKING_HOME:
-//            seekTargetAt(mHomePoint);
-//            if (getStateTimeMs() > 6000) {
-//                // Done moving.  Stop moving to try for pickup.
-//                setState(State.WAITING_FOR_PICKUP);
-//            }
-//            break;
-        case SEEKING_TARGET:
-            seekTargetAt(mSeekingTarget);
-            if (NavUtils.getDistance(mCurrentGpsX, mCurrentGpsY, mSeekingTarget.x, mSeekingTarget.y) <= MIN_DIST) {
-                if (mSeekingTarget != mHomePoint) {
-                    setState(State.REMOVING_BALL);
-                    runBallKnockScript();
-                } else {
-                    setState(State.WAITING_FOR_PICKUP);
-                }
-                sendWheelSpeed(0, 0);
-            }
-            break;
-        case REMOVING_BALL:
-            if (mDoneRemovingBall) {
-                setState(State.SEEKING_TARGET);
-                mDoneRemovingBall = false;
-            }
-        case WAITING_FOR_GPS:
-            sendWheelSpeed((int) (255 * LEFT_DUTY_CYCLE_FACTOR), 255);
-            if (getStateTimeMs() > 10000) {
-                setState(State.SEEKING_TARGET);
-            }
-            break;
-        default:
-            // Other states don't need to do anything, but could.
-            break;
-        }
-    }
-
-    private long getStateTimeMs() {
-        return System.currentTimeMillis() - mStateStartTime;
-    }
-
-    private void runScriptRed01() {
-        Toast.makeText(this, "Red script step 0", Toast.LENGTH_SHORT).show();
-        mCommandHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(MainActivity.this,
-                        "Red script step 1", Toast.LENGTH_SHORT).show();
-            }
-        }, 2000);
-        mCommandHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(MainActivity.this,
-                        "Red script step 2", Toast.LENGTH_SHORT).show();
-            }
-        }, 4000);
-        mCommandHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                setState(State.WAITING_FOR_GPS);
-            }
-        }, 6000);
-    }
-
-    private void runScriptBlue01() {
-        Toast.makeText(this, "Blue script step 0", Toast.LENGTH_SHORT).show();
-        mCommandHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(MainActivity.this,
-                        "Blue script step 1", Toast.LENGTH_SHORT).show();
-            }
-        }, 2000);
-        mCommandHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(MainActivity.this,
-                        "Blue script step 2", Toast.LENGTH_SHORT).show();
-            }
-        }, 4000);
-        mCommandHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                setState(State.WAITING_FOR_GPS);
-            }
-        }, 6000);
-    }
-
-    private void seekTargetAt(Point p) {
-        int leftDutyCycle = 200;
-        int rightDutyCycle = 200;
-        double targetHeading = NavUtils.getTargetHeading(mCurrentGpsX, mCurrentGpsY, p.x, p.y);
-        double leftTurnAmount = NavUtils.getLeftTurnHeadingDelta(mCurrentSensorHeading, targetHeading);
-        double rightTurnAmount = NavUtils.getRightTurnHeadingDelta(mCurrentSensorHeading, targetHeading);
-        if (leftTurnAmount < rightTurnAmount) {
-            leftDutyCycle -= (int) (leftTurnAmount);
-            leftDutyCycle *= LEFT_DUTY_CYCLE_FACTOR; // Correction factor for T'Rex
-            leftDutyCycle = Math.max(leftDutyCycle, LOWEST_DUTY_CYCLE);
-        } else {
-            rightDutyCycle -= (int) (rightTurnAmount);
-            rightDutyCycle = Math.max(rightDutyCycle, LOWEST_DUTY_CYCLE);
-        }
-        sendWheelSpeed(leftDutyCycle, rightDutyCycle);
+    public void handleTeamToggle(View view) {
+        mIsRedTeam = ((ToggleButton) view).isChecked();
     }
 
     public void handleFakeGPS1(View view) {
@@ -603,4 +561,5 @@ public class MainActivity extends RobotActivity
     public void handleFakeGPS6(View view) {
         onLocationChanged(240, -50, FieldGps.NO_BEARING_AVAILABLE, null);
     }
+
 }
