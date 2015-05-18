@@ -113,6 +113,7 @@ public class FieldOrientation implements SensorEventListener {
    */
   public void setCurrentFieldHeading(double currentFieldHeading) {
     mFieldBearing = getRevisedAzimuth() + (float) currentFieldHeading;
+    dispatchOnSensorChangedEvent();
   }
 
   @Override

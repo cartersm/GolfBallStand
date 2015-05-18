@@ -227,7 +227,7 @@ public class MainActivity extends RobotActivity
             break;
         case SEEKING_TARGET:
             seekTargetAt(mSeekingTarget);
-            if (NavUtils.getDistance(mCurrentGpsX, mCurrentGpsY, mSeekingTarget.x, mSeekingTarget.y) <= MIN_DIST) {
+            if (NavUtils.getDistance(mGuessX, mGuessY, mSeekingTarget.x, mSeekingTarget.y) <= MIN_DIST) {
                 if (mSeekingTarget != mHomePoint) {
                     setState(State.REMOVING_BALL);
                     runBallKnockScript();
@@ -258,6 +258,7 @@ public class MainActivity extends RobotActivity
         default:
             break;
         }
+        mGpsTextView.setText(getString(R.string.xy_format, mGuessX, mGuessY));
     }
 
     private long getStateTimeMs() {
@@ -311,9 +312,9 @@ public class MainActivity extends RobotActivity
     private void seekTargetAt(Point p) {
         double leftDutyCycle = 255 * leftDutyCycleFactor; // TODO: change me to a Picker
         double rightDutyCycle = 255;
-        double targetHeading = NavUtils.getTargetHeading(mCurrentGpsX, mCurrentGpsY, p.x, p.y);
-        double leftTurnAmount = NavUtils.getLeftTurnHeadingDelta(mCurrentGpsHeading, targetHeading);
-        double rightTurnAmount = NavUtils.getRightTurnHeadingDelta(mCurrentGpsHeading, targetHeading);
+        double targetHeading = NavUtils.getTargetHeading(mGuessX, mGuessY, p.x, p.y);
+        double leftTurnAmount = NavUtils.getLeftTurnHeadingDelta(mCurrentSensorHeading, targetHeading);
+        double rightTurnAmount = NavUtils.getRightTurnHeadingDelta(mCurrentSensorHeading, targetHeading);
         if (leftTurnAmount < rightTurnAmount) {
             leftDutyCycle -= (int) (leftTurnAmount);
             leftDutyCycle = Math.max(leftDutyCycle, LOWEST_DUTY_CYCLE);
@@ -422,10 +423,7 @@ public class MainActivity extends RobotActivity
         mGpsTextView.setText(getString(R.string.xy_format, x, y));
         if (heading <= 180.0 && heading > -180.0) {
             mGpsHeadingTextView.setText(getString(R.string.degrees_format, heading));
-            boolean mSetFieldOrientationWithGpsHeadings = true;
-            if (mSetFieldOrientationWithGpsHeadings) {
-                mFieldOrientation.setCurrentFieldHeading(heading);
-            }
+//            mFieldOrientation.setCurrentFieldHeading(heading);
         } else {
             mGpsHeadingTextView.setText(getString(R.string.blank_field));
         }
@@ -522,6 +520,8 @@ public class MainActivity extends RobotActivity
         mFieldGps.setCurrentLocationAsOrigin();
         mCurrentGpsX = 0;
         mCurrentGpsY = 0;
+        mGuessX = 0;
+        mGuessY = 0;
     }
 
     public void handleSetXAxis(View view) {
