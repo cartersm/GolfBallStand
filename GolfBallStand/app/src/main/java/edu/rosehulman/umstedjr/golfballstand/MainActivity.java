@@ -54,8 +54,6 @@ public class MainActivity extends RobotActivity
 
     private enum State {
         READY_FOR_MISSION,
-        INITIAL_RED_SCRIPT,
-        INITIAL_BLUE_SCRIPT,
         WAITING_FOR_GPS,
         INITIAL_WAITING_FOR_GPS,
         WAITING_FOR_PICKUP,
@@ -67,7 +65,6 @@ public class MainActivity extends RobotActivity
 
     private boolean mIsRedTeam = true;
     private Point mHomePoint;
-    private Point mWhitePoint;
     private Point mGreenPoint;
     private Point mRedPoint;
     private Point mBluePoint;
@@ -138,7 +135,6 @@ public class MainActivity extends RobotActivity
     private void setUpTeamAndLocations() {
         // Set locations based on team
         mHomePoint = new Point(0, 0);
-        mWhitePoint = new Point(180, 0);
 
         if (mIsRedTeam) {
             mGreenPoint = new Point(90, 50);
@@ -289,7 +285,9 @@ public class MainActivity extends RobotActivity
             mSeekingTarget = mYellowPoint;
             break;
         case WHITE:
-            mSeekingTarget = mWhitePoint;
+            if (mSeekingTarget.x < 180) {
+                mSeekingTarget = new Point(240, mSeekingTarget.y);
+            }
             break;
         default:
             mSeekingTarget = mHomePoint;
@@ -423,7 +421,8 @@ public class MainActivity extends RobotActivity
         mGpsTextView.setText(getString(R.string.xy_format, x, y));
         if (heading <= 180.0 && heading > -180.0) {
             mGpsHeadingTextView.setText(getString(R.string.degrees_format, heading));
-//            mFieldOrientation.setCurrentFieldHeading(heading);
+            // Set fieldHeading to GPS heading
+            mFieldOrientation.setCurrentFieldHeading(heading);
         } else {
             mGpsHeadingTextView.setText(getString(R.string.blank_field));
         }
