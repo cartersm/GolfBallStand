@@ -68,7 +68,7 @@ public class MainActivity extends RobotActivity
     private Point mGreenPoint;
     private Point mRedPoint;
     private Point mBluePoint;
-
+    private Point mWhitePoint;
     private Point mYellowPoint;
     private double mGuessX, mGuessY;
 
@@ -135,6 +135,7 @@ public class MainActivity extends RobotActivity
     private void setUpTeamAndLocations() {
         // Set locations based on team
         mHomePoint = new Point(0, 0);
+        mWhitePoint = new Point(240, 0);
 
         if (mIsRedTeam) {
             mGreenPoint = new Point(90, 50);
@@ -174,11 +175,11 @@ public class MainActivity extends RobotActivity
             for (int i = 0; i < 3; i++) {
                 ballColors[i] = ballColors[i].trim();
             }
-            fixColors(ballColors);
+            BallCorrector.BallColor[] goodColors = fixColors(ballColors);
 
-            mBall1TextView.setText(ballColors[0]);
-            mBall2TextView.setText(ballColors[1]);
-            mBall3TextView.setText(ballColors[2]);
+            mBall1TextView.setText(goodColors[0].name());
+            mBall2TextView.setText(goodColors[1].name());
+            mBall3TextView.setText(goodColors[2].name());
             setColorLocations();
 
         }
@@ -285,9 +286,7 @@ public class MainActivity extends RobotActivity
             mSeekingTarget = mYellowPoint;
             break;
         case WHITE:
-            if (mSeekingTarget.x < 180) {
-                mSeekingTarget = new Point(240, mSeekingTarget.y);
-            }
+            mSeekingTarget = mWhitePoint;
             break;
         default:
             mSeekingTarget = mHomePoint;
@@ -386,19 +385,21 @@ public class MainActivity extends RobotActivity
         }
     }
 
-    private void fixColors(String[] ballColorStrings) {
+    private BallCorrector.BallColor[] fixColors(String[] ballColorStrings) {
         BallCorrector.BallColor[] ballColors = BallCorrector.convertToBallColors(ballColorStrings);
 
-        // fix "NONE" returns, if possible.
-        BallCorrector.checkNoneToRG(ballColors);
-        BallCorrector.checkNoneToYB(ballColors);
-        BallCorrector.checkNoneToBW(ballColors);
-
         // Check Incompatible Colors
-        BallCorrector.checkBW(ballColors);
-        BallCorrector.checkRG(ballColors);
-        BallCorrector.checkYB(ballColors);
+        ballColors = BallCorrector.checkBW(ballColors);
+        ballColors = BallCorrector.checkRG(ballColors);
+        ballColors = BallCorrector.checkYB(ballColors);
 
+        // fix "NONE" returns, if possible.
+        ballColors = BallCorrector.checkNoneToRG(ballColors);
+        ballColors = BallCorrector.checkNoneToYB(ballColors);
+        ballColors = BallCorrector.checkNoneToBW(ballColors);
+
+
+        return ballColors;
     }
 
     private boolean textEquals(TextView view, String text) {

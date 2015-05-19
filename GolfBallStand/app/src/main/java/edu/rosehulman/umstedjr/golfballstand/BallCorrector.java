@@ -45,7 +45,7 @@ public class BallCorrector {
         return ballColor.name().equals(color.name());
     }
 
-    public static void checkYB(BallColor[] ballColors) {
+    public static BallColor[] checkYB(BallColor[] ballColors) {
         if (isColor(ballColors[0], BallColor.YELLOW)) {
             if (isColor(ballColors[1], BallColor.BLUE)) {
                 ballColors[1] = BallColor.GREEN;
@@ -77,9 +77,10 @@ public class BallCorrector {
                 ballColors[0] = BallColor.WHITE;
             }
         }
+        return ballColors;
     }
 
-    public static void checkRG(BallColor[] ballColors) {
+    public static BallColor[] checkRG(BallColor[] ballColors) {
         if (isColor(ballColors[0], BallColor.RED)) {
             if (isColor(ballColors[1], BallColor.GREEN)) {
                 ballColors[1] = BallColor.BLUE;
@@ -99,9 +100,10 @@ public class BallCorrector {
                 ballColors[0] = BallColor.BLUE;
             }
         }
+        return ballColors;
     }
 
-    public static void checkBW(BallColor[] ballColors) {
+    public static BallColor[] checkBW(BallColor[] ballColors) {
         if (isColor(ballColors[0], BallColor.WHITE)) {
             if (isColor(ballColors[1], BallColor.BLACK)) {
                 ballColors[1] = BallColor.GREEN;
@@ -121,9 +123,10 @@ public class BallCorrector {
                 ballColors[0] = BallColor.GREEN;
             }
         }
+        return ballColors;
     }
 
-    public static void checkNoneToRG(BallColor[] ballColors) {
+    public static BallColor[] checkNoneToRG(BallColor[] ballColors) {
         if (isNone(ballColors[0]) &&
                 (isColors(ballColors[1], BallColor.YELLOW, BallColor.BLUE)
                         && isColors(ballColors[2], BallColor.WHITE, BallColor.BLACK)
@@ -143,9 +146,10 @@ public class BallCorrector {
                         && isColors(ballColors[0], BallColor.WHITE, BallColor.BLACK))) {
             ballColors[2] = (RAND.nextBoolean()) ? BallColor.RED : BallColor.GREEN;
         }
+        return ballColors;
     }
 
-    public static void checkNoneToYB(BallColor[] ballColors) {
+    public static BallColor[] checkNoneToYB(BallColor[] ballColors) {
         if (isNone(ballColors[0]) &&
                 (isColors(ballColors[1], BallColor.RED, BallColor.GREEN)
                         && isColors(ballColors[2], BallColor.WHITE, BallColor.BLACK)
@@ -165,9 +169,10 @@ public class BallCorrector {
                         && isColors(ballColors[0], BallColor.WHITE, BallColor.BLACK))) {
             ballColors[1] = (RAND.nextBoolean()) ? BallColor.YELLOW : BallColor.BLUE;
         }
+        return ballColors;
     }
 
-    public static void checkNoneToBW(BallColor[] ballColors) {
+    public static BallColor[] checkNoneToBW(BallColor[] ballColors) {
         if (isNone(ballColors[0]) &&
                 (isColors(ballColors[1], BallColor.RED, BallColor.GREEN)
                         && isColors(ballColors[2], BallColor.YELLOW, BallColor.BLUE)
@@ -187,5 +192,7 @@ public class BallCorrector {
                         && isColors(ballColors[0], BallColor.YELLOW, BallColor.BLUE))) {
             ballColors[1] = (RAND.nextBoolean()) ? BallColor.WHITE : BallColor.BLACK;
         }
+        return ballColors;
     }
+
 }
